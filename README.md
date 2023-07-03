@@ -1,2 +1,2 @@
 # RoomE
-for students to find accomodation
+a living-space listing website to find roommates living nearby
