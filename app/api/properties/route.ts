@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '../../utils/db';  // Corrected path to db
+import prisma from '../../utils/db';
 import jwt from 'jsonwebtoken';
 
 // 🔄 Function to Verify JWT Token and Return User ID
@@ -44,10 +44,20 @@ export async function POST(req: Request) {
   }
 }
 
-// 🛠️ GET Request to Fetch All Properties
-export async function GET() {
+// 🛠️ GET Request to Fetch All or Filtered Properties
+export async function GET(req: Request) {
   try {
+    const url = new URL(req.url);
+    const minPrice = url.searchParams.get('minPrice');
+    const maxPrice = url.searchParams.get('maxPrice');
+
     const properties = await prisma.property.findMany({
+      where: {
+        AND: [
+          minPrice ? { price: { gte: parseInt(minPrice) } } : {},
+          maxPrice ? { price: { lte: parseInt(maxPrice) } } : {},
+        ],
+      },
       include: {
         host: {
           select: {
@@ -58,6 +68,7 @@ export async function GET() {
         },
       },
     });
+
     return NextResponse.json({ properties });
   } catch (error) {
     console.error('Error Fetching Properties:', error);
