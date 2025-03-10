@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -19,12 +20,13 @@ export default function PropertyDetailsPage() {
   const [date, setDate] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   const router = useRouter();
-  const params = useParams();  // Use useParams to get URL parameters
+  const params = useParams();  // 🛠️ Use useParams to get URL parameters
 
+  // 🛠️ Fetch property details
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        if (!params.id) return;  // Check if params.id is available
+        if (!params.id) return;
         const response = await fetch(`/api/properties/${params.id}`);
         const data = await response.json();
         setProperty(data.property);
@@ -36,11 +38,13 @@ export default function PropertyDetailsPage() {
     fetchProperty();
   }, [params.id]);
 
+  // 🛠️ Handle booking
   const handleBooking = async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         setMessage('Please login to book.');
+        router.push('/login');
         return;
       }
 
@@ -61,7 +65,9 @@ export default function PropertyDetailsPage() {
       if (data.error) {
         setMessage(data.error);
       } else {
-        setMessage('Booking successful!');
+        console.log('✅ Booking successful:', data);
+        // 🛠️ Redirect to booking confirmation page
+        router.replace(`/booking-confirmation?id=${data.booking.id}`);
       }
     } catch (error) {
       console.error('Booking Error:', error);
